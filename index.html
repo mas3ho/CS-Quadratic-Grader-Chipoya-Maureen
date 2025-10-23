@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic Equation Solver & Grade Calculator</title>
+</head>
+<body>
+    <h1>Quadratic Equation Solver & Grade Calculator</h1>
+    <p>This page solves quadratic equations and converts numeric scores to letter grades.</p>
+    
+    <!-- Quadratic Solver Section -->
+    <h2>Quadratic Equation Solver</h2>
+    <p>Solve equations of the form: ax² + bx + c = 0</p>
+    
+    <form id="quadratic-form">
+        <div>
+            <label for="a">Coefficient a:</label>
+            <input type="number" id="a" step="any" required>
+            <span id="a-error"></span>
+        </div>
+        <div>
+            <label for="b">Coefficient b:</label>
+            <input type="number" id="b" step="any" required>
+            <span id="b-error"></span>
+        </div>
+        <div>
+            <label for="c">Coefficient c:</label>
+            <input type="number" id="c" step="any" required>
+            <span id="c-error"></span>
+        </div>
+        
+        <button type="submit">Compute</button>
+        <button type="button" id="reset-quadratic">Reset</button>
+    </form>
+    
+    <div id="quadratic-results">
+        <!-- Results will be displayed here -->
+    </div>
+    
+    <hr>
+    
+    <!-- Grading System Section -->
+    <h2>Grading System</h2>
+    <p>Enter a score (0-100) to get the corresponding letter grade.</p>
+    
+    <form id="grading-form">
+        <div>
+            <label for="score">Score:</label>
+            <input type="number" id="score" min="0" max="100" required>
+            <span id="score-error"></span>
+        </div>
+        
+        <button type="submit">Compute</button>
+        <button type="button" id="reset-grade">Reset</button>
+    </form>
+    
+    <div id="grade-results">
+        <!-- Grade results will be displayed here -->
+    </div>
+
+    <script>
+        // Quadratic Solver Functions
+        document.getElementById('quadratic-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            solveQuadratic();
+        });
+
+        document.getElementById('reset-quadratic').addEventListener('click', function() {
+            document.getElementById('quadratic-form').reset();
+            document.getElementById('quadratic-results').innerHTML = '';
+            clearQuadraticErrors();
+        });
+
+        function solveQuadratic() {
+            // Clear previous errors and results
+            clearQuadraticErrors();
+            document.getElementById('quadratic-results').innerHTML = '';
+            
+            // Get input values
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+            
+            // Validate inputs
+            let isValid = true;
+            
+            if (isNaN(a)) {
+                document.getElementById('a-error').textContent = 'Please enter a valid number for a';
+                isValid = false;
+            } else if (a === 0) {
+                document.getElementById('a-error').textContent = 'Coefficient a cannot be zero';
+                isValid = false;
+            }
+            
+            if (isNaN(b)) {
+                document.getElementById('b-error').textContent = 'Please enter a valid number for b';
+                isValid = false;
+            }
+            
+            if (isNaN(c)) {
+                document.getElementById('c-error').textContent = 'Please enter a valid number for c';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Calculate discriminant
+            const discriminant = b * b - 4 * a * c;
+            
+            // Determine nature of roots and calculate
+            let resultHTML = `<h3>Results:</h3>`;
+            resultHTML += `<p>Discriminant (D) = ${discriminant.toFixed(4)}</p>`;
+            
+            if (discriminant > 0) {
+                // Two distinct real roots
+                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                resultHTML += `<p>Nature of roots: Two distinct real roots</p>`;
+                resultHTML += `<p>Root 1 = ${root1.toFixed(4)}</p>`;
+                resultHTML += `<p>Root 2 = ${root2.toFixed(4)}</p>`;
+            } else if (discriminant === 0) {
+                // One real repeated root
+                const root = -b / (2 * a);
+                resultHTML += `<p>Nature of roots: One real repeated root</p>`;
+                resultHTML += `<p>Root = ${root.toFixed(4)}</p>`;
+            } else {
+                // Two complex conjugate roots
+                const realPart = -b / (2 * a);
+                const imaginaryPart = Math.sqrt(-discriminant) / (2 * a);
+                resultHTML += `<p>Nature of roots: Two complex conjugate roots</p>`;
+                resultHTML += `<p>Root 1 = ${realPart.toFixed(4)} + ${Math.abs(imaginaryPart).toFixed(4)}i</p>`;
+                resultHTML += `<p>Root 2 = ${realPart.toFixed(4)} - ${Math.abs(imaginaryPart).toFixed(4)}i</p>`;
+            }
+            
+            document.getElementById('quadratic-results').innerHTML = resultHTML;
+        }
+
+        function clearQuadraticErrors() {
+            document.getElementById('a-error').textContent = '';
+            document.getElementById('b-error').textContent = '';
+            document.getElementById('c-error').textContent = '';
+        }
+
+        // Grading System Functions
+        document.getElementById('grading-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateGrade();
+        });
+
+        document.getElementById('reset-grade').addEventListener('click', function() {
+            document.getElementById('grading-form').reset();
+            document.getElementById('grade-results').innerHTML = '';
+            document.getElementById('score-error').textContent = '';
+        });
+
+        function calculateGrade() {
+            // Clear previous errors and results
+            document.getElementById('score-error').textContent = '';
+            document.getElementById('grade-results').innerHTML = '';
+            
+            // Get input value
+            const score = parseInt(document.getElementById('score').value);
+            
+            // Validate input
+            if (isNaN(score)) {
+                document.getElementById('score-error').textContent = 'Please enter a valid number';
+                return;
+            }
+            
+            if (score < 0 || score > 100) {
+                document.getElementById('score-error').textContent = 'Score must be between 0 and 100';
+                return;
+            }
+            
+            // Determine grade according to the exact scale provided
+            let grade;
+            
+            if (score >= 85) {
+                grade = 'A+';
+            } else if (score >= 75) {
+                grade = 'A';
+            } else if (score >= 65) {
+                grade = 'B+';
+            } else if (score >= 60) {
+                grade = 'B';
+            } else if (score >= 55) {
+                grade = 'C+';
+            } else if (score >= 50) {
+                grade = 'C';
+            } else {
+                grade = 'D';
+            }
+            
+            // Display results in the exact format requested
+            const resultHTML = `<p>Score ${score} → Grade ${grade}</p>`;
+            document.getElementById('grade-results').innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>
